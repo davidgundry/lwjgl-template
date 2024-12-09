@@ -1,0 +1,10 @@
+{
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "cSpell.words": [
+        "Bezier",
+        "Framebuffer",
+        "glfw",
+        "lwjgl",
+        "MODELVIEW"
+    ]
+}
