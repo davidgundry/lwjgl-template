@@ -28,9 +28,13 @@ public class MyGame extends Game {
 
     public void update(long currentTime, long deltaTime) {}
 
+    /**
+     * This example makes use of the old OpenGL fixed function workflow. This is quick for getting something
+     * to render on the screen, but is less efficient and is not programmable.
+     */
     public void draw() {
         glColor3f(1, 0, 0);
-         rect(0, 0, 1, 1);
+        rect(0, 0, 1, 1);
         // drawNGon();
         drawNGon(myPolygon);
     }
