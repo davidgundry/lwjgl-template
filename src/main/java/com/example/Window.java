@@ -11,7 +11,6 @@ import java.nio.IntBuffer;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryStack;
 
 public class Window
@@ -57,7 +56,7 @@ public class Window
         glfwSwapInterval(1); // Enable v-sync
         glfwShowWindow(windowID);
         glfwSetFramebufferSizeCallback(windowID, (long win, int w, int h) -> {
-            GL11.glViewport(0,0,w,h);
+            glViewport(0,0,w,h);
             game.windowResized(w, h);
             width = w;
             height = h;
@@ -109,8 +108,7 @@ public class Window
     private long createGLFWWindow(int width, int height, String title)
     {
         glfwDefaultWindowHints();
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         long window = glfwCreateWindow(width, height, title, NULL, NULL);
         if ( window == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
@@ -150,6 +148,46 @@ public class Window
         if (options.closeOnEscape)
             if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
                 glfwSetWindowShouldClose(windowID, true);
+            if ( key == GLFW_KEY_F11 && action == GLFW_RELEASE )
+                toggleFullScreen();
+            if ( key == GLFW_KEY_F10 && action == GLFW_RELEASE )
+                toggleResolution();
+    }
+
+    public void listVideoModes()
+    {
+        GLFWVidMode.Buffer videoModes = glfwGetVideoModes(glfwGetPrimaryMonitor());
+        for (int i=0;i<videoModes.capacity();i++)
+        {
+            GLFWVidMode mode = videoModes.get(i);
+            System.out.println(mode.width() + "x" + mode.height() + " " + mode.refreshRate());
+        }
+    }
+
+    private void toggleResolution() {
+        try (MemoryStack stack = MemoryStack.stackPush())
+        {
+            IntBuffer width = stack.callocInt(1);
+            IntBuffer height = stack.callocInt(1);
+            glfwGetWindowSize(windowID, width, height);
+            System.out.println(width.get(0) + "x" + height.get(0));
+            if (width.get(0) == 640 && height.get(0) == 480)
+                glfwSetWindowSize(windowID, 1024, 768);
+            else
+                glfwSetWindowSize(windowID, 640, 480);
+        }
+    }
+
+    private void toggleFullScreen() {
+        boolean isWindowed = glfwGetWindowMonitor(windowID) == NULL;
+        if (isWindowed)
+        {
+            GLFWVidMode.Buffer videoModes = glfwGetVideoModes(glfwGetPrimaryMonitor());
+            GLFWVidMode mode = videoModes.get(0);
+            glfwSetWindowMonitor(windowID, glfwGetPrimaryMonitor(), 0, 0, mode.width(), mode.height(), mode.refreshRate());
+        }
+        else
+            glfwSetWindowMonitor(windowID, NULL, 0, 0, options.width, options.height, 60);
     }
 
 }

@@ -35,6 +35,7 @@ public class Main {
         options.width = arguments.width;
         options.height = arguments.height;
         Window w = new Window(new MyGame(), options).create();
+        w.listVideoModes();
         w.loop();
         w.close();
     }
